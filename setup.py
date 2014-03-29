@@ -28,7 +28,8 @@ setup(
     },
     install_requires=[
         'fudge==1.0.3',
-        'requests>=0.14.0',
+        'klein>=0.2.3',
+        'treq>=0.2.1'
         'simplejson>=2.0',
     ],
     tests_require=[
