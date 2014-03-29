@@ -6,17 +6,6 @@ A friendly wrapper around the `Soundcloud API`_.
 
 .. _Soundcloud API: http://developers.soundcloud.com/
 
-Installation
-------------
-
-To install soundcloud-python, simply: ::
-
-    pip install soundcloud
-
-Or if you're not hip to the pip: ::
-
-    easy_install soundcloud
-
 Basic Use
 ---------
 
@@ -24,16 +13,16 @@ To use soundcloud-python, you must first create a `Client` instance,
 passing at a minimum the client id you obtained when you `registered
 your app`_: ::
 
-    import soundcloud
+    import txsoundcloud
 
-    client = soundcloud.Client(client_id=YOUR_CLIENT_ID)
+    client = txsoundcloud.Client(client_id=YOUR_CLIENT_ID)
 
 The client instance can then be used to fetch or modify resources: ::
 
-    tracks = client.get('/tracks', limit=10)
+    tracks = yield client.get('/tracks', limit=10)
     for track in tracks:
         print track.title
-    app = client.get('/apps/124')
+    app = yield client.get('/apps/124')
     print app.permalink_url
 
 .. _registered your app: http://soundcloud.com/you/apps/
@@ -49,7 +38,7 @@ instance: ::
     import soundcloud
 
     client = soundcloud.Client(client_id=YOUR_CLIENT_ID)
-    track = client.get('/tracks/30709985')
+    track = yield client.get('/tracks/30709985')
     print track.title
 
 If however, you need to access private resources or modify a resource,
@@ -61,7 +50,7 @@ this, you can use one of the following OAuth2 authorization flows.
 The `Authorization Code Flow`_ involves redirecting the user to soundcloud.com
 where they will log in and grant access to your application: ::
 
-    import soundcloud
+    import txsoundcloud
 
     client = soundcloud.Client(
         client_id=YOUR_CLIENT_ID,
@@ -87,7 +76,7 @@ password for an access token. Be cautious about using this flow, it's
 not very kind to ask your users for their password, but may be
 necessary in some use cases: ::
 
-    import soundcloud
+    import txsoundcloud
 
     client = soundcloud.Client(
         client_id=YOUR_CLIENT_ID,
@@ -95,7 +84,8 @@ necessary in some use cases: ::
         username='jane@example.com',
         password='janespassword'
     )
-    print client.get('/me').username
+    me = yield client.get('/me').username
+    print me
 
 .. _`OAuth2 authorization flows`: http://developers.soundcloud.com/docs/api/authentication
 .. _`Authorization Code Flow`: http://developers.soundcloud.com/docs/api/authentication#user-agent-flow
@@ -106,21 +96,21 @@ Examples
 
 Resolve a track and print its id: ::
 
-    import soundcloud
+    import txsoundcloud
 
-    client = soundcloud.Client(client_id=YOUR_CLIENT_ID)
+    client = txsoundcloud.Client(client_id=YOUR_CLIENT_ID)
 
-    track = client.get('/resolve', url='http://soundcloud.com/forss/flickermood')
+    track = yield client.get('/resolve', url='http://soundcloud.com/forss/flickermood')
 
     print track.id
 
 Upload a track: ::
 
-    import soundcloud
+    import txsoundcloud
 
-    client = soundcloud.Client(access_token="a valid access token")
+    client = txsoundcloud.Client(access_token="a valid access token")
 
-    track = client.post('/tracks', track={
+    track = yield client.post('/tracks', track={
         'title': 'This is a sample track',
         'sharing': 'private',
         'asset_data': open('mytrack.mp4', 'rb')
@@ -130,7 +120,7 @@ Upload a track: ::
 
 Start following a user: ::
 
-    import soundcloud
+    import txsoundcloud
 
     client = soundcloud.Client(access_token="a valid access token")
     user_id_to_follow = 123
@@ -138,9 +128,9 @@ Start following a user: ::
 
 Update your profile description: ::
 
-    import soundcloud
+    import txsoundcloud
 
-    client = soundcloud.Client(access_token="a valid access token")
+    client = txsoundcloud.Client(access_token="a valid access token")
     client.put('/me', user={
         'description': "a new description"
     })
@@ -150,12 +140,12 @@ Proxy Support
 
 If you're behind a proxy, you can specify it when creating a client: ::
 
-    import soundcloud
+    import txsoundcloud
 
     proxies = {
         'http': 'example.com:8000'
     }
-    client = soundcloud.Client(access_token="a valid access token",
+    client = txsoundcloud.Client(access_token="a valid access token",
                                proxies=proxies)
 
 The proxies kwarg is a dictionary with protocols as keys and host:port as values.
@@ -165,10 +155,10 @@ Redirects
 
 By default, 301 or 302 redirects will be followed for idempotent methods. There are certain cases where you may want to disable this, for example: ::
 
-    import soundcloud
+    import txsoundcloud
 
-    client = soundcloud.Client(access_token="a valid access token")
-    track = client.get('/tracks/293/stream', allow_redirects=False)
+    client = txsoundcloud.Client(access_token="a valid access token")
+    track = yield client.get('/tracks/293/stream', allow_redirects=False)
     print track.location
 
 Will print a tracks streaming URL. If ``allow_redirects`` was omitted, a binary stream would be returned instead.
