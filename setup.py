@@ -5,7 +5,7 @@ use_setuptools()
 from setuptools import setup
 
 version = None
-for line in open('./soundcloud/__init__.py'):
+for line in open('./txsoundcloud/__init__.py'):
     m = re.search('__version__\s*=\s*(.*)', line)
     if m:
         version = m.group(1).strip()[1:-1]  # quotes
@@ -13,14 +13,14 @@ for line in open('./soundcloud/__init__.py'):
 assert version
 
 setup(
-    name='soundcloud',
+    name='txsoundcloud',
     version=version,
     description='A friendly wrapper library for the Soundcloud API',
     author='Paul Osman',
     author_email='osman@soundcloud.com',
-    url='https://github.com/soundcloud/soundcloud-python',
+    url='https://github.com/dpnova/txsoundcloud',
     license='BSD',
-    packages=['soundcloud'],
+    packages=['txsoundcloud'],
     include_package_data=True,
     use_2to3=True,
     package_data={
@@ -36,7 +36,7 @@ setup(
         'nose>=1.1.2',
     ],
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
