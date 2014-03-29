@@ -1,6 +1,8 @@
 from functools import partial
 from urllib import urlencode
 
+from twisted.internet.defer import inlineCallbacks, returnValue
+
 from soundcloud.resource import wrapped_resource
 from soundcloud.request import make_request
 
@@ -112,6 +114,7 @@ class Client(object):
             make_request('post', url, options))
         self.access_token = self.token.access_token
 
+    @inlineCallbacks
     def _request(self, method, resource, **kwargs):
         """Given an HTTP method, a resource name and kwargs, construct a
         request and return the response.
@@ -127,7 +130,8 @@ class Client(object):
             'verify_ssl': self.options.get('verify_ssl', True),
             'proxies': self.options.get('proxies', None)
         })
-        return wrapped_resource(make_request(method, url, kwargs))
+        response = yield make_request(method, url, kwargs)
+        returnValue(wrapped_resource(response))
 
     def __getattr__(self, name, **kwargs):
         """Translate an HTTP verb into a request method."""

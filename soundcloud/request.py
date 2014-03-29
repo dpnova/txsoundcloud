@@ -1,6 +1,7 @@
 import urllib
 
-import requests
+import treq
+from twisted.internet.defer import inlineCallbacks, returnValue
 
 import soundcloud
 import hashconversions
@@ -76,6 +77,7 @@ def namespaced_query_string(d, prefix=""):
     return qs
 
 
+@inlineCallbacks
 def make_request(method, url, params):
     """Make an HTTP request, formatting params as required."""
     empty = []
@@ -113,23 +115,26 @@ def make_request(method, url, params):
     files = namespaced_query_string(extract_files_from_dict(params))
     data = namespaced_query_string(remove_files_from_dict(params))
 
-    request_func = getattr(requests, method, None)
+    request_func = getattr(treq, method, None)
     if request_func is None:
         raise TypeError('Unknown method: %s' % (method,))
 
     if method == 'get':
         qs = urllib.urlencode(data)
-        result = request_func('%s?%s' % (url, qs), **kwargs)
+        result = yield request_func('%s?%s' % (url, qs), **kwargs)
+        content = yield treq.content(result)
+        result.content = content
     else:
         kwargs['data'] = data
         if files:
             kwargs['files'] = files
-        result = request_func(url, **kwargs)
+        result = yield request_func(url, **kwargs)
 
     # if redirects are disabled, don't raise for 301 / 302
-    if result.status_code in (301, 302):
+    import pdb; pdb.set_trace()
+    if result.code in (301, 302):
         if allow_redirects:
             result.raise_for_status()
     else:
         result.raise_for_status()
-    return result
+    returnValue(result)
