@@ -3,8 +3,8 @@ from urllib import urlencode
 
 from twisted.internet.defer import inlineCallbacks, returnValue
 
-from soundcloud.resource import wrapped_resource
-from soundcloud.request import make_request
+from txsoundcloud.resource import wrapped_resource
+from txsoundcloud.request import make_request
 
 
 class Client(object):

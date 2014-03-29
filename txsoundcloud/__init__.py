@@ -5,4 +5,4 @@ __all__ = ['Client']
 
 USER_AGENT = 'SoundCloud Python API Wrapper %s' % __version__
 
-from soundcloud.client import Client
+from txsoundcloud.client import Client

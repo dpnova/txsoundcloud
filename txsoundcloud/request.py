@@ -1,9 +1,10 @@
 import urllib
 
 import treq
+from treq.content import _encoding_from_headers
 from twisted.internet.defer import inlineCallbacks, returnValue
 
-import soundcloud
+import txsoundcloud as soundcloud
 import hashconversions
 
 
@@ -130,11 +131,14 @@ def make_request(method, url, params):
             kwargs['files'] = files
         result = yield request_func(url, **kwargs)
 
+    result.encoding = _encoding_from_headers(result.headers)
+    result.url = result.request.absoluteURI
+    result.status_code = result.code
+    result.reason = result.phrase
     # if redirects are disabled, don't raise for 301 / 302
-    import pdb; pdb.set_trace()
-    if result.code in (301, 302):
-        if allow_redirects:
-            result.raise_for_status()
-    else:
-        result.raise_for_status()
+    # if result.code in (301, 302):
+    #     if allow_redirects:
+    #         result.raise_for_status()
+    # else:
+    #     result.raise_for_status()
     returnValue(result)
